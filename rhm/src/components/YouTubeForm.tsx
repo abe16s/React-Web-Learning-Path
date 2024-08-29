@@ -1,4 +1,4 @@
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldErrors } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { useEffect } from 'react';
 
@@ -48,6 +48,10 @@ export const YouTubeForm = () => {
         console.log("Form submitted", data);
     }
 
+    const onError = (errors: FieldErrors<FormValues>) => {
+        console.log("Form errors", errors);
+    }
+
     const handleGetValues = () => {
         console.log("Get values", getValues());
     }
@@ -68,7 +72,7 @@ export const YouTubeForm = () => {
         <div>
             <h1>YouTube Form ({renderCount++})</h1>
             <h2>Watched value: </h2>
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <div className='form-control'>
                     <label htmlFor="username">Username</label>
                     <input type="text" id="username" {...register("username", {required: "Username is required"})} />
@@ -102,7 +106,12 @@ export const YouTubeForm = () => {
 
                 <div className='form-control'>
                     <label htmlFor="twitter">Twitter</label>
-                    <input type="text" id="twitter"  {...register("social.twitter")}/>
+                    <input type="text" id="twitter"  {...register("social.twitter",
+                        {
+                            disabled: watch("channel") === "",
+                            required: "Enter twitter profile"
+                        }
+                    )}/>
                 </div>
 
                 <div className='form-control'>
