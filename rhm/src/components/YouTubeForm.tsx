@@ -1,5 +1,6 @@
 import { useForm, useFieldArray } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
+import { useEffect } from 'react';
 
 type FormValues = {
     username: string;
@@ -13,7 +14,11 @@ type FormValues = {
     phNumbers: {
         number: string;
     }[];
+    age: number;
+    dob: Date
 }
+
+let renderCount = 1;
 
 export const YouTubeForm = () => {
     const form = useForm<FormValues>({
@@ -26,10 +31,12 @@ export const YouTubeForm = () => {
                 twitter: ""
             },
             phoneNumbers: ["", ""],
-            phNumbers: [{number: ""}]
+            phNumbers: [{number: ""}],
+            age: 0,
+            dob: new Date()
         }
     });
-    const {register, control, handleSubmit, formState} = form;
+    const {register, control, handleSubmit, formState, watch, getValues, setValue} = form;
     const {errors} = formState;
 
     const {fields, append, remove} = useFieldArray({
@@ -40,10 +47,27 @@ export const YouTubeForm = () => {
     const onSubmit = (data: FormValues) => {
         console.log("Form submitted", data);
     }
-    
+
+    const handleGetValues = () => {
+        console.log("Get values", getValues());
+    }
+
+    const handleSetValues = () => {
+        setValue("username", "superman");
+    }
+
+    useEffect(() => {
+        const subscription = watch((value) => {
+            console.log("Watched value", value);
+        });
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
+    // const watchUsername = watch("username");
     return (
         <div>
-            <h1>YouTube Form</h1>
+            <h1>YouTube Form ({renderCount++})</h1>
+            <h2>Watched value: </h2>
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div className='form-control'>
                     <label htmlFor="username">Username</label>
@@ -113,7 +137,27 @@ export const YouTubeForm = () => {
                     </div>
                 </div>
 
+                <div className='form-control'>
+                    <label htmlFor="age">Age</label>
+                    <input type="number" id="age"  {...register("age", {
+                        valueAsNumber: true,
+                        required: "Age is required"})
+                    }/>
+                    <p className='error'>{errors.age?.message}</p>
+                </div>
+
+                <div className='form-control'>
+                    <label htmlFor="dob">Date of birth</label>
+                    <input type="date" id="dob"  {...register("dob", {
+                        valueAsDate: true,
+                        required: "Date of birth is required"})
+                    }/>
+                    <p className='error'>{errors.dob?.message}</p>
+                </div>
+
                 <button>Submit</button>
+                <button type='button' onClick={handleGetValues}>Get Values</button>
+                <button type='button' onClick={handleSetValues}>Set Value</button>
             </form>
             <DevTool control={control}/>
         </div>
