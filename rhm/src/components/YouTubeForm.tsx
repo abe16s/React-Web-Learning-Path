@@ -36,8 +36,8 @@ export const YouTubeForm = () => {
             dob: new Date()
         }
     });
-    const {register, control, handleSubmit, formState, watch, getValues, setValue} = form;
-    const {errors} = formState;
+    const {register, control, handleSubmit, formState, watch, getValues, setValue, reset} = form;
+    const {errors, isDirty, isValid, isSubmitting, isSubmitSuccessful} = formState;
 
     const {fields, append, remove} = useFieldArray({
         name: "phNumbers",
@@ -59,6 +59,13 @@ export const YouTubeForm = () => {
     const handleSetValues = () => {
         setValue("username", "superman");
     }
+
+
+    useEffect (() => {
+        if (isSubmitSuccessful) {
+            reset();   
+        }
+    }, [isSubmitSuccessful, reset])
 
     useEffect(() => {
         const subscription = watch((value) => {
@@ -164,9 +171,10 @@ export const YouTubeForm = () => {
                     <p className='error'>{errors.dob?.message}</p>
                 </div>
 
-                <button>Submit</button>
+                <button disabled={!isDirty || !isValid || !isSubmitting}>Submit</button>
                 <button type='button' onClick={handleGetValues}>Get Values</button>
                 <button type='button' onClick={handleSetValues}>Set Value</button>
+                <button type='button' onClick={() => reset()}>Reset</button>
             </form>
             <DevTool control={control}/>
         </div>
